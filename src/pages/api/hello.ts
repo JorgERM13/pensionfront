@@ -1,4 +1,4 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+// Next.js API route support: https://nextjs.org/docbolivianosapi-routebolivianosintroduction
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
