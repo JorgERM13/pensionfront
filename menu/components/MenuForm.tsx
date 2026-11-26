@@ -54,44 +54,48 @@ const handleGuardar = async () => {
   }
 };
 
-  return (
+    return (
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
       <Card elevation={0} sx={{ 
-        border: '1px solid #e2e8f0', 
+        border: '1px solid #E7E5E4', 
         borderRadius: 3, 
         overflow: 'hidden', 
-        background: '#ffffff', 
-        boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)' 
+        background: '#FFFFFF', 
+        boxShadow: '0 8px 30px rgba(61, 59, 42, 0.06)' 
       }}>
         
         {/* HEADER */}
         <Box sx={{ 
-          p: 3, borderBottom: '1px solid #e2e8f0', bgcolor: '#f8fafc', 
+          p: 3, 
+          borderBottom: '1px solid #F5F5F4', 
+          bgcolor: '#FFFFFF', 
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
           gap: 2, flexWrap: 'wrap' 
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box sx={{ bgcolor: '#1e293b', color: '#ffffff', p: 1, borderRadius: 2, display: 'flex' }}>
+            {/* Icono con fondo Terracota tenue */}
+            <Box sx={{ bgcolor: 'rgba(198, 107, 61, 0.1)', color: '#C66B3D', p: 1, borderRadius: 2, display: 'flex' }}>
               <RestaurantMenuIcon sx={{ fontSize: 28 }} />
             </Box>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
-                Configuración del Menú del Día
+              <Typography variant="h6" sx={{ fontWeight: 800, color: '#3D3B2A', lineHeight: 1.2 }}>
+                Configuración del Menú
               </Typography>
-              <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 500 }}>
-                Define el precio y la disponibilidad general del almuerzo.
+              <Typography variant="body2" sx={{ color: '#78716C', fontWeight: 500 }}>
+                Define el precio y la disponibilidad general.
               </Typography>
             </Box>
           </Box>
           
           <Link href="/admin/platos" style={{ textDecoration: 'none' }}>
+            {/* Botón de catálogo con borde Verde Oliva */}
             <Button 
               variant="outlined" 
               startIcon={<RestaurantMenuIcon sx={{ fontSize: 20 }} />}
               sx={{ 
-                borderColor: '#1e293b', color: '#1e293b', fontWeight: 700, 
+                borderColor: '#6B7B3A', color: '#6B7B3A', fontWeight: 700, 
                 textTransform: 'none', borderRadius: 2, px: 2, py: 1,
-                '&:hover': { bgcolor: '#f1f5f9', borderColor: '#0f172a' }
+                '&:hover': { bgcolor: 'rgba(107, 123, 58, 0.05)', borderColor: '#57662E' }
               }}
             >
               Gestionar Catálogo de Platos
@@ -101,11 +105,22 @@ const handleGuardar = async () => {
 
         <Box sx={{ p: { xs: 2, sm: 4 } }}>
           
-          <Alert severity="info" sx={{ mb: 4, borderRadius: 2, border: '1px solid #bae6fd', bgcolor: '#f0f9ff' }}>
-            <Typography variant="body2" sx={{ fontWeight: 700, color: '#0369a1', mb: 0.5 }}>
+          {/* Alert informativo en tonos Beige/Verde Oliva */}
+          <Alert 
+            severity="info" 
+            sx={{ 
+              mb: 4, 
+              borderRadius: 2, 
+              border: '1px solid #D8C3A5', 
+              bgcolor: '#F6F1E7', 
+              color: '#3D3B2A',
+              '& .MuiAlert-icon': { color: '#6B7B3A' }
+            }}
+          >
+            <Typography variant="body2" sx={{ fontWeight: 800, color: '#6B7B3A', mb: 0.5 }}>
               💡 ¿Cómo seleccionar los platos de hoy?
             </Typography>
-            <Typography variant="body2" sx={{ color: '#0284c7' }}>
+            <Typography variant="body2" sx={{ color: '#78716C', fontWeight: 500 }}>
               No necesitas agregarlos aquí. Ve a la sección <strong>"Gestión de Platos"</strong>, asigna el stock y activa el switch "Disponible".
             </Typography>
           </Alert>
@@ -121,9 +136,16 @@ const handleGuardar = async () => {
               onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, fecha: e.target.value })}
               slotProps={{ inputLabel: { shrink: true } }}
               sx={{ 
-                '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#f8fafc', transition: 'all 0.2s' },
-                '& .MuiOutlinedInput-root:hover': { bgcolor: '#ffffff' },
-                '& .MuiInputLabel-root': { fontWeight: 600, color: '#475569' }
+                '& .MuiOutlinedInput-root': { 
+                  borderRadius: 2, 
+                  bgcolor: '#F9F6F2', 
+                  transition: 'all 0.2s',
+                  '& fieldset': { borderColor: '#E7E5E4' },
+                  '&:hover fieldset': { borderColor: '#C66B3D' },
+                  '&.Mui-focused fieldset': { borderColor: '#C66B3D' },
+                },
+                '& .MuiInputLabel-root': { fontWeight: 600, color: '#78716C' },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#C66B3D' },
               }}
             />
 
@@ -136,26 +158,37 @@ const handleGuardar = async () => {
               onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, precio_completo: parseFloat(e.target.value) || 0 })}
               slotProps={{ htmlInput: { min: 0, step: 0.5 } }}
               sx={{ 
-                '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#f8fafc', transition: 'all 0.2s' },
-                '& .MuiOutlinedInput-root:hover': { bgcolor: '#ffffff' },
-                '& .MuiInputLabel-root': { fontWeight: 600, color: '#475569' }
+                '& .MuiOutlinedInput-root': { 
+                  borderRadius: 2, 
+                  bgcolor: '#F9F6F2', 
+                  transition: 'all 0.2s',
+                  '& fieldset': { borderColor: '#E7E5E4' },
+                  '&:hover fieldset': { borderColor: '#C66B3D' },
+                  '&.Mui-focused fieldset': { borderColor: '#C66B3D' },
+                },
+                '& .MuiInputLabel-root': { fontWeight: 600, color: '#78716C' },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#C66B3D' },
               }}
             />
 
-            <Divider sx={{ my: 1 }} />
+            <Divider sx={{ my: 1, borderColor: '#F5F5F4' }} />
 
-            {/* 👇 SWITCH CORREGIDO (Sin FormControlLabel) */}
+            {/* SWITCH CON ESTILO BISTRÓ */}
             <Box sx={{ 
               display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-              p: 2.5, bgcolor: formData.activo ? '#f0fdf4' : '#f8fafc', 
-              borderRadius: 2, border: `1px solid ${formData.activo ? '#bbf7d0' : '#e2e8f0'}`, 
+              p: 2.5, 
+              // Si está activo usa un beige/oliva sutil, si no, gris muy claro
+              bgcolor: formData.activo ? '#F6F1E7' : '#F9F6F2', 
+              borderRadius: 2, 
+              border: '1px solid', 
+              borderColor: formData.activo ? '#D8C3A5' : '#E7E5E4', 
               transition: 'all 0.3s' 
             }}>
               <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: formData.activo ? '#166534' : '#0f172a' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: formData.activo ? '#6B7B3A' : '#78716C' }}>
                   {formData.activo ? '🟢 Menú Activo' : '🔴 Menú Inactivo'}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.5 }}>
+                <Typography variant="caption" sx={{ color: '#A8A29E', display: 'block', mt: 0.5, fontWeight: 500 }}>
                   Si está desactivado, el POS no mostrará la opción de "Almuerzo Completo".
                 </Typography>
               </Box>
@@ -164,9 +197,10 @@ const handleGuardar = async () => {
                 checked={!!formData.activo}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, activo: e.target.checked })}
                 sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': { color: '#10b981' },
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#10b981' },
-                  '& .MuiSwitch-track': { bgcolor: '#cbd5e1' },
+                  // Switch en Verde Oliva cuando está activo
+                  '& .MuiSwitch-switchBase.Mui-checked': { color: '#6B7B3A' },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#6B7B3A' },
+                  '& .MuiSwitch-track': { bgcolor: '#D8C3A5' },
                 }}
               />
             </Box>
@@ -186,6 +220,7 @@ const handleGuardar = async () => {
       )}
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+        {/* Botón Guardar en Terracota */}
         <Button 
           variant="contained" 
           startIcon={guardando ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />} 
@@ -193,8 +228,14 @@ const handleGuardar = async () => {
           disabled={guardando} 
           sx={{
             py: 1.5, px: 4, fontSize: '1rem', fontWeight: 700, textTransform: 'none', borderRadius: 2, 
-            bgcolor: '#1e293b', boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)',
-            '&:hover': { bgcolor: '#0f172a', boxShadow: '0 6px 16px rgba(15, 23, 42, 0.3)', transform: guardando ? 'none' : 'translateY(-1px)' }, 
+            bgcolor: '#C66B3D', 
+            color: '#FFFFFF',
+            boxShadow: '0 4px 14px rgba(198, 107, 61, 0.3)',
+            '&:hover': { 
+              bgcolor: '#A5552D', 
+              boxShadow: '0 6px 20px rgba(198, 107, 61, 0.4)', 
+              transform: guardando ? 'none' : 'translateY(-1px)' 
+            }, 
             transition: 'all 0.2s ease', opacity: guardando ? 0.8 : 1
           }}
         >

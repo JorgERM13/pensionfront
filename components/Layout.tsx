@@ -63,7 +63,7 @@ export default function Layout({ children }: LayoutProps) {
     { text: 'Resumen', icon: <AssessmentIcon />, path: '/resumen' },
   
   ];
-  return (
+     return (
     <Box sx={{ display: 'flex', bgcolor: '#f8fafc', minHeight: '100vh' }}>
       <Drawer
         variant="permanent"
@@ -76,42 +76,42 @@ export default function Layout({ children }: LayoutProps) {
             width: isCollapsed ? collapsedWidth : drawerWidth,
             transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             overflowX: 'hidden',
-            // Fondo azul pizarra profundo (contrasta perfecto con el naranja)
-            background: 'linear-gradient(180deg, #1a2f50 0%, #0F172A 100%)', 
-            borderRight: '1px solid #334155',
-            color: '#F8FAFC' 
+            // 👇 FONDO VERDE OLIVA OSCURO (Elegante y natural)
+            bgcolor: '#3D3B2A', 
+            borderRight: '1px solid #4F4D3A',
+            color: '#D8C3A5' 
           },
         }}
       >
         {/* HEADER DEL SIDEBAR */}
         <Box sx={{ 
           display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between',
-          p: 2, minHeight: 72, borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+          p: 2, minHeight: 72, borderBottom: '1px solid rgba(216, 195, 165, 0.1)' // Borde beige sutil
         }}>
           {!isCollapsed && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
-              {/* Logo con Naranja Oscuro */}
-              <Avatar sx={{ bgcolor: '#894a28', width: 38, height: 38, borderRadius: 2, boxShadow: '0 4px 8px rgba(234, 88, 12, 0.3)' }}>
-                <RestaurantIcon sx={{ fontSize: 22, color: '#ffffff' }} />
+              {/* Logo con Terracota */}
+              <Avatar sx={{ bgcolor: '#C66B3D', width: 38, height: 38, borderRadius: 2, boxShadow: '0 4px 8px rgba(198, 107, 61, 0.3)' }}>
+                <RestaurantIcon sx={{ fontSize: 22, color: '#FFFFFF' }} />
               </Avatar>
               <Box sx={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-                <Typography noWrap sx={{ fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.3px', fontSize: '1rem', lineHeight: 1.1 }}>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#D8C3A5', letterSpacing: '-0.3px', fontSize: '1rem', lineHeight: 1.1 }}>
                   {user?.tenant_nombre || 'Mi Negocio'}
                 </Typography>
-                {/* Subtítulo de jerarquía */}
-                <Typography noWrap sx={{ color: '#94A3B8', fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mt: 0.5 }}>
+                {/* Subtítulo con Verde Oliva */}
+                <Typography noWrap sx={{ color: '#6B7B3A', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mt: 0.5 }}>
                   Kitchen POS
                 </Typography>
               </Box>
             </Box>
           )}
           {isCollapsed && (
-             <Avatar sx={{ bgcolor: '#894a28', width: 38, height: 38, borderRadius: 2, boxShadow: '0 4px 8px rgba(234, 88, 12, 0.3)' }}>
-               <RestaurantIcon sx={{ fontSize: 22, color: '#ffffff' }} />
+             <Avatar sx={{ bgcolor: '#C66B3D', width: 38, height: 38, borderRadius: 2, boxShadow: '0 4px 8px rgba(198, 107, 61, 0.3)' }}>
+               <RestaurantIcon sx={{ fontSize: 22, color: '#FFFFFF' }} />
              </Avatar>
           )}
           {!isCollapsed && (
-            <IconButton onClick={toggleCollapse} size="small" sx={{ color: '#94A3B8', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.05)' } }}>
+            <IconButton onClick={toggleCollapse} size="small" sx={{ color: '#D8C3A5', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(216, 195, 165, 0.1)' } }}>
               <ChevronLeftIcon />
             </IconButton>
           )}
@@ -120,7 +120,7 @@ export default function Layout({ children }: LayoutProps) {
         {/* BOTÓN PARA EXPANDIR (Replegado) */}
         {isCollapsed && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 1 }}>
-            <IconButton onClick={toggleCollapse} size="small" sx={{ color: '#94A3B8', bgcolor: 'rgba(255,255,255,0.03)', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.08)' } }}>
+            <IconButton onClick={toggleCollapse} size="small" sx={{ color: '#D8C3A5', bgcolor: 'rgba(216, 195, 165, 0.05)', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(216, 195, 165, 0.15)' } }}>
               <MenuIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -143,15 +143,15 @@ export default function Layout({ children }: LayoutProps) {
                       justifyContent: isCollapsed ? 'center' : 'initial',
                       px: isCollapsed ? 0 : 2,
                       borderRadius: '0 8px 8px 0', 
-                      // 👇 ESTADO ACTIVO: Fondo naranja translúcido y borde naranja oscuro
-                      bgcolor: isActive ? 'rgba(234, 88, 12, 0.15)' : 'transparent',
-                      borderLeft: isActive ? '3px solid #894a28' : '3px solid transparent',
-                      // 👇 Texto activo en naranja claro para que resalte
-                      color: isActive ? '#FDBA74' : '#CBD5E1',
+                      // 👇 ESTADO ACTIVO: Fondo Verde Oliva sutil, borde Terracota
+                      bgcolor: isActive ? 'rgba(107, 123, 58, 0.25)' : 'transparent',
+                      borderLeft: isActive ? '3px solid #C66B3D' : '3px solid transparent',
+                      // 👇 Texto activo en Beige, inactivo un poco más apagado
+                      color: isActive ? '#D8C3A5' : 'rgba(216, 195, 165, 0.6)',
                       '&:hover': {
-                        bgcolor: isActive ? 'rgba(234, 88, 12, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                        color: isActive ? '#FDBA74' : '#FFFFFF',
-                        '& .MuiListItemIcon-root': { color: isActive ? '#FDBA74' : '#FFFFFF' },
+                        bgcolor: isActive ? 'rgba(107, 123, 58, 0.3)' : 'rgba(216, 195, 165, 0.08)',
+                        color: '#D8C3A5',
+                        '& .MuiListItemIcon-root': { color: isActive ? '#C66B3D' : '#D8C3A5' },
                       },
                       transition: 'all 0.2s ease'
                     }}
@@ -159,8 +159,8 @@ export default function Layout({ children }: LayoutProps) {
                     <ListItemIcon sx={{ 
                       minWidth: 0, mr: isCollapsed ? 0 : 2,
                       justifyContent: 'center',
-                      // 👇 Icono activo en naranja oscuro
-                      color: isActive ? '#894a28' : '#94A3B8', 
+                      // 👇 Icono activo en Terracota
+                      color: isActive ? '#C66B3D' : 'rgba(216, 195, 165, 0.6)', 
                       transition: 'color 0.2s'
                     }}>
                       {item.icon}
@@ -187,23 +187,24 @@ export default function Layout({ children }: LayoutProps) {
         </List>
 
         {/* PERFIL Y LOGOUT */}
-        <Box sx={{ p: 2, borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <Box sx={{ p: 2, borderTop: '1px solid rgba(216, 195, 165, 0.1)' }}>
           <Box sx={{ 
             display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, 
             justifyContent: isCollapsed ? 'center' : 'flex-start'
           }}>
             <Tooltip title={isCollapsed ? user?.nombre || '' : ''} placement="right" arrow>
-              <Avatar sx={{ bgcolor: '#334155', fontWeight: 700, width: 38, height: 38, fontSize: '0.95rem', color: '#F8FAFC', border: '1px solid #475569' }}>
+              {/* Avatar en beige con letra oliva */}
+              <Avatar sx={{ bgcolor: '#D8C3A5', fontWeight: 800, width: 38, height: 38, fontSize: '0.95rem', color: '#3D3B2A' }}>
                 {user?.nombre?.charAt(0).toUpperCase()}
               </Avatar>
             </Tooltip>
             {!isCollapsed && (
               <Box sx={{ minWidth: 0 }}>
-                <Typography noWrap sx={{ fontWeight: 600, color: '#FFFFFF', lineHeight: 1.2, fontSize: '0.85rem' }}>
+                <Typography noWrap sx={{ fontWeight: 600, color: '#D8C3A5', lineHeight: 1.2, fontSize: '0.85rem' }}>
                   {user?.nombre}
                 </Typography>
-                {/* Rol en Naranja */}
-                <Typography noWrap sx={{ color: '#F97316', fontWeight: 700, display: 'block', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', mt: 0.3 }}>
+                {/* Rol en Terracota */}
+                <Typography noWrap sx={{ color: '#C66B3D', fontWeight: 700, display: 'block', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', mt: 0.3 }}>
                   {user?.tenant_tipo === 'pension' ? 'Administrador' : 'Cajero'}
                 </Typography>
               </Box>
@@ -218,8 +219,8 @@ export default function Layout({ children }: LayoutProps) {
                 justifyContent: isCollapsed ? 'center' : 'initial',
                 px: isCollapsed ? 0 : 2,
                 py: 1,
-                color: '#F87171', 
-                '&:hover': { bgcolor: 'rgba(248, 113, 113, 0.1)', color: '#FCA5A5' }
+                color: '#C66B3D', 
+                '&:hover': { bgcolor: 'rgba(198, 107, 61, 0.15)', color: '#E58A61' }
               }}
             >
               <ListItemIcon sx={{ minWidth: 0, mr: isCollapsed ? 0 : 2, justifyContent: 'center', color: 'inherit' }}>

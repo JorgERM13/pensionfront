@@ -4,7 +4,7 @@ import {
   Box, Card, Typography, Switch, TextField, Button, Grid, Tabs, Tab, Chip,
   CircularProgress, Divider, Dialog, DialogTitle, DialogContent, DialogActions,
   MenuItem, FormControlLabel, Checkbox, IconButton,
-  Snackbar, Alert // 👈 Agregamos Snackbar y Alert para la notificación
+  Snackbar, Alert
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
@@ -13,6 +13,7 @@ import LocalDiningIcon from '@mui/icons-material/LocalDining';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LocalBarIcon from '@mui/icons-material/LocalBar';
+import EditIcon from '@mui/icons-material/Edit'; // 👈 Icono para editar
 import { api } from '@/lib/api';
 import { useRouter } from 'next/router';
 
@@ -44,9 +45,10 @@ export default function GestionPlatos() {
   // Cambios pendientes (bulk save)
   const [cambios, setCambios] = useState<Record<number, { stock?: number; disponible?: boolean }>>({});
 
-  // Dialog Nuevo Plato
-  const [openNuevo, setOpenNuevo] = useState(false);
-  const [nuevoPlato, setNuevoPlato] = useState({
+  // Dialog Nuevo/Editar Plato
+  const [openModal, setOpenModal] = useState(false);
+  const [platoEditando, setPlatoEditando] = useState<Plato | null>(null);
+  const [formPlato, setFormPlato] = useState({
     nombre: '', precio: '', stock: '', categoria_id: '', disponible: true,
   });
 
@@ -79,7 +81,7 @@ export default function GestionPlatos() {
     setCambios((prev) => ({ ...prev, [plato.id]: { ...prev[plato.id], disponible: !nuevo } }));
   };
 
-   const guardarEstadoDia = async () => {
+  const guardarEstadoDia = async () => {
     const ids = Object.keys(cambios).map(Number);
     if (ids.length === 0) {
       setMensaje({ tipo: 'info', texto: 'No hay cambios pendientes.' });
@@ -99,20 +101,11 @@ export default function GestionPlatos() {
         }),
       };
 
-      // 1. Enviamos los cambios al backend
       await api.post('/platos/estado-dia', payload);
-
-      // 2. 🚨 LA SOLUCIÓN: Recargamos los datos desde el backend
-      // Esto garantiza que la pantalla muestre el estado REAL guardado en MySQL
       await cargarDatos(); 
-
-      // 3. Limpiamos los cambios pendientes
       setCambios({});
-      setMensaje({ tipo: 'success', texto: `✅ ${ids.length} plato(s) actualizados correctamente.` });
-      setTimeout(() => setMensaje(null), 3000);
-      
+      setMensaje({ tipo: 'success', texto: `✅ ${ids.length} plato(s) actualizados.` });
     } catch (error) {
-      console.error("Error al guardar estado:", error);
       setMensaje({ tipo: 'error', texto: 'Error al guardar los cambios.' });
     } finally {
       setGuardando(false);
@@ -135,55 +128,57 @@ export default function GestionPlatos() {
     }
   };
 
-  const handleGuardarNuevoPlato = async () => {
-    if (!nuevoPlato.nombre.trim()) {
-      setMensaje({ tipo: 'error', texto: 'El nombre es obligatorio.' });
-      return;
-    }
-    if (!nuevoPlato.precio || Number(nuevoPlato.precio) <= 0) {
-      setMensaje({ tipo: 'error', texto: 'El precio debe ser mayor a 0.' });
-      return;
-    }
-    if (!nuevoPlato.categoria_id) {
-      setMensaje({ tipo: 'error', texto: 'Selecciona una categoría.' });
+  // 👇 Abrir modal para NUEVO
+  const handleAbrirNuevo = () => {
+    setPlatoEditando(null);
+    setFormPlato({ nombre: '', precio: '', stock: '', categoria_id: '', disponible: true });
+    setOpenModal(true);
+  };
+
+  // 👇 Abrir modal para EDITAR
+  const handleAbrirEditar = (plato: Plato) => {
+    setPlatoEditando(plato);
+    setFormPlato({
+      nombre: plato.nombre,
+      precio: String(plato.precio),
+      stock: String(plato.stock),
+      categoria_id: String(plato.categoria_id),
+      disponible: plato.disponible,
+    });
+    setOpenModal(true);
+  };
+
+  const handleGuardarPlato = async () => {
+    if (!formPlato.nombre.trim() || !formPlato.precio || !formPlato.categoria_id) {
+      setMensaje({ tipo: 'error', texto: 'Completa nombre, precio y categoría.' });
       return;
     }
 
     setGuardando(true);
     try {
       const payload = {
-        nombre: nuevoPlato.nombre.trim(),
-        precio: Number(nuevoPlato.precio),
-        stock: Number(nuevoPlato.stock) || 0,
-        categoria_id: Number(nuevoPlato.categoria_id),
-        disponible: nuevoPlato.disponible,
+        nombre: formPlato.nombre.trim(),
+        precio: Number(formPlato.precio),
+        stock: Number(formPlato.stock) || 0,
+        categoria_id: Number(formPlato.categoria_id),
+        disponible: formPlato.disponible,
       };
 
-      // 1. Enviamos el plato al backend
-      const response = await api.post('/platos', payload);
+      if (platoEditando) {
+        // Modo Edición
+        await api.put(`/platos/${platoEditando.id}`, payload);
+        setMensaje({ tipo: 'success', texto: `✅ El plato "${payload.nombre}" se actualizó correctamente.` });
+      } else {
+        // Modo Creación
+        await api.post('/platos', payload);
+        setMensaje({ tipo: 'success', texto: `✅ El plato "${payload.nombre}" se creó correctamente.` });
+      }
       
-      // 2. Evaluamos si el backend devolvió el plato con nombre
-      const nombrePlato = response?.nombre || response?.data?.nombre || payload.nombre;
-
-      // 3. Mostramos el mensaje de éxito
-      setMensaje({ tipo: 'success', texto: `✅ ¡El plato "${nombrePlato}" se creó correctamente!` });
-      
-      // 4. Cerramos el modal y limpiamos el formulario
-      setOpenNuevo(false);
-      setNuevoPlato({ nombre: '', precio: '', stock: '', categoria_id: '', disponible: true });
-
-      // 5. 🚨 LA SOLUCIÓN: Recargamos los datos para que el nuevo plato aparezca en la lista real
+      setOpenModal(false);
       await cargarDatos(); 
 
     } catch (error: any) {
-      console.error('❌ Error al crear plato:', error);
-
-      const mensajeBackend =
-        error?.response?.data?.message ||
-        error?.response?.data?.errors?.[Object.keys(error?.response?.data?.errors || {})[0]]?.[0] ||
-        error?.message ||
-        'Error al crear el plato.';
-
+      const mensajeBackend = error?.response?.data?.message || 'Error al guardar el plato.';
       setMensaje({ tipo: 'error', texto: `❌ ${mensajeBackend}` });
     } finally {
       setGuardando(false);
@@ -199,21 +194,21 @@ export default function GestionPlatos() {
   const totalCambios = Object.keys(cambios).length;
 
   if (loading) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>;
+    return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress sx={{ color: '#C66B3D' }} /></Box>;
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: '#f8fafc', minHeight: '100vh' }}>
+    <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: '#F6F1E7', minHeight: '100vh' }}>
       
-      {/* HEADER (Igual al tuyo) */}
+      {/* HEADER */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <IconButton
             onClick={() => router.push('/menu')}
             sx={{
-              bgcolor: '#ffffff', border: '1px solid #e2e8f0', color: '#475569',
-              width: 42, height: 42, boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
-              '&:hover': { bgcolor: '#f8fafc', borderColor: '#cbd5e1', transform: 'translateX(-2px)' },
+              bgcolor: '#FFFFFF', border: '1px solid #D8C3A5', color: '#3D3B2A',
+              width: 42, height: 42, boxShadow: '0 1px 3px rgba(61, 59, 42, 0.08)',
+              '&:hover': { bgcolor: '#F9F6F2', borderColor: '#C66B3D' },
               transition: 'all 0.2s ease',
             }}
           >
@@ -221,10 +216,10 @@ export default function GestionPlatos() {
           </IconButton>
 
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: '#3D3B2A', letterSpacing: '-0.5px' }}>
               Menú del Día
             </Typography>
-            <Typography variant="body1" sx={{ color: '#64748b', mt: 0.5 }}>
+            <Typography variant="body1" sx={{ color: '#6B7B3A', mt: 0.5, fontWeight: 500 }}>
               Activa los platos de hoy y ajusta el stock disponible.
             </Typography>
           </Box>
@@ -233,30 +228,30 @@ export default function GestionPlatos() {
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button
             variant="outlined" startIcon={<RestartAltIcon />} onClick={handleResetearDia} disabled={guardando}
-            sx={{ borderColor: '#f59e0b', color: '#f59e0b', fontWeight: 700, textTransform: 'none', '&:hover': { bgcolor: '#fffbeb', borderColor: '#d97706' } }}
+            sx={{ borderColor: '#C66B3D', color: '#C66B3D', fontWeight: 700, textTransform: 'none', '&:hover': { bgcolor: 'rgba(198, 107, 61, 0.05)', borderColor: '#A5552D' } }}
           >
             🔄 Reiniciar Día
           </Button>
           <Button
             variant="contained" startIcon={<SaveIcon />} onClick={guardarEstadoDia} disabled={guardando || totalCambios === 0}
-            sx={{ bgcolor: '#10b981', fontWeight: 700, textTransform: 'none', '&:hover': { bgcolor: '#059669' } }}
+            sx={{ bgcolor: '#6B7B3A', fontWeight: 700, textTransform: 'none', color: '#FFFFFF', '&:hover': { bgcolor: '#57662E' } }}
           >
             Guardar {totalCambios > 0 ? `(${totalCambios})` : ''}
           </Button>
           <Button
-            variant="contained" startIcon={<AddIcon />} onClick={() => setOpenNuevo(true)}
-            sx={{ bgcolor: '#1e293b', fontWeight: 700, textTransform: 'none', '&:hover': { bgcolor: '#0f172a' } }}
+            variant="contained" startIcon={<AddIcon />} onClick={handleAbrirNuevo}
+            sx={{ bgcolor: '#3D3B2A', fontWeight: 700, textTransform: 'none', '&:hover': { bgcolor: '#2A281D' } }}
           >
             Nuevo Plato
           </Button>
         </Box>
       </Box>
 
-      {/* TABS (Igual al tuyo) */}
-      <Card elevation={0} sx={{ mb: 3, borderRadius: 2, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+      {/* TABS */}
+      <Card elevation={0} sx={{ mb: 3, borderRadius: 2, border: '1px solid #E7E5E4', overflow: 'hidden', bgcolor: '#FFFFFF' }}>
         <Tabs
           value={filtro} onChange={(_, v) => setFiltro(v)} variant="scrollable" scrollButtons="auto"
-          sx={{ '& .MuiTab-root': { fontWeight: 700, textTransform: 'none', py: 1.5, color: '#64748b', '&.Mui-selected': { color: '#0f172a' } }, '& .MuiTabs-indicator': { bgcolor: '#1e293b', height: 3 } }}
+          sx={{ '& .MuiTab-root': { fontWeight: 700, textTransform: 'none', py: 1.5, color: '#78716C', '&.Mui-selected': { color: '#3D3B2A' } }, '& .MuiTabs-indicator': { bgcolor: '#C66B3D', height: 3 } }}
         >
           <Tab label={`Todos (${platos.length})`} />
           {categorias.map((c, idx) => (
@@ -269,7 +264,7 @@ export default function GestionPlatos() {
         </Tabs>
       </Card>
 
-      {/* GRID DE PLATOS (Igual al tuyo) */}
+      {/* GRID DE PLATOS */}
       <Grid container spacing={2}>
         {platosFiltrados.map((plato) => {
           const stockActual = cambios[plato.id]?.stock ?? plato.stock;
@@ -279,41 +274,48 @@ export default function GestionPlatos() {
           return (
             <Grid size={{ xs: 12, sm: 6, md: 4 }} key={plato.id}>
               <Card elevation={0} sx={{
-                border: '2px solid', borderColor: modificado ? '#3b82f6' : disponibleActual ? '#10b981' : '#e2e8f0',
+                border: '2px solid', borderColor: modificado ? '#6B7B3A' : disponibleActual ? '#D8C3A5' : '#E7E5E4',
                 borderRadius: 2.5, p: 2.5, transition: 'all 0.2s', opacity: disponibleActual ? 1 : 0.7,
-                '&:hover': { boxShadow: '0 8px 24px rgba(0,0,0,0.06)' },
+                bgcolor: '#FFFFFF',
+                '&:hover': { boxShadow: '0 8px 24px rgba(61, 59, 42, 0.08)' },
               }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="subtitle1" noWrap sx={{ fontWeight: 800, color: '#3D3B2A', lineHeight: 1.2 }}>
                       {plato.nombre}
                     </Typography>
-                    <Chip label={plato.categoria?.nombre || 'Sin categoría'} size="small" sx={{ mt: 1, bgcolor: '#f1f5f9', color: '#475569', fontWeight: 600, height: 22 }} />
+                    <Chip label={plato.categoria?.nombre || 'Sin categoría'} size="small" sx={{ mt: 1, bgcolor: '#F6F1E7', color: '#6B7B3A', fontWeight: 700, height: 22 }} />
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>
-                    Bs {plato.precio}
-                  </Typography>
+                  <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#C66B3D' }}>
+                      Bs {plato.precio}
+                    </Typography>
+                    {/* 👇 BOTÓN DE EDITAR */}
+                    <IconButton size="small" onClick={() => handleAbrirEditar(plato)} sx={{ mt: 0.5, color: '#A8A29E', '&:hover': { color: '#C66B3D', bgcolor: 'rgba(198, 107, 61, 0.08)' } }}>
+                      <EditIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                  </Box>
                 </Box>
 
-                <Divider sx={{ my: 1.5 }} />
+                <Divider sx={{ my: 1.5, borderColor: '#F5F5F4' }} />
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 600, color: '#64748b' }}>Stock:</Typography>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#78716C' }}>Stock:</Typography>
                     <TextField
                       type="number" size="small" value={stockActual}
                       onChange={(e) => marcarStock(plato, parseInt(e.target.value) || 0)}
-                      slotProps={{ htmlInput: { min: 0, style: { width: '60px', textAlign: 'center', fontWeight: 700 } } }}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5, bgcolor: modificado ? '#eff6ff' : '#f8fafc' } }}
+                      slotProps={{ htmlInput: { min: 0, style: { width: '60px', textAlign: 'center', fontWeight: 700, color: '#3D3B2A' } } }}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5, bgcolor: modificado ? '#FFF0E6' : '#F9F6F2', '& fieldset': { borderColor: modificado ? '#C66B3D' : '#E7E5E4' } } }}
                     />
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 600, color: disponibleActual ? '#10b981' : '#94a3b8' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: disponibleActual ? '#6B7B3A' : '#A8A29E' }}>
                       {disponibleActual ? 'Activo' : 'Inactivo'}
                     </Typography>
                     <Switch
                       checked={disponibleActual} onChange={() => toggleDisponible(plato)}
-                      sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: '#10b981' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#10b981' } }}
+                      sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: '#6B7B3A' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#6B7B3A' } }}
                     />
                   </Box>
                 </Box>
@@ -323,45 +325,51 @@ export default function GestionPlatos() {
         })}
       </Grid>
 
-      {/* DIALOG NUEVO PLATO */}
-      <Dialog open={openNuevo} onClose={() => !guardando && setOpenNuevo(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>Nuevo Plato</DialogTitle>
-        <DialogContent dividers>
+      {/* DIALOG NUEVO / EDITAR PLATO */}
+      <Dialog open={openModal} onClose={() => !guardando && setOpenModal(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
+        <DialogTitle sx={{ fontWeight: 800, color: '#3D3B2A', pb: 1 }}>
+          {platoEditando ? 'Editar Plato' : 'Nuevo Plato'}
+        </DialogTitle>
+        <DialogContent dividers sx={{ borderColor: '#F5F5F4' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            <TextField label="Nombre" fullWidth value={nuevoPlato.nombre} onChange={(e) => setNuevoPlato({ ...nuevoPlato, nombre: e.target.value })} />
+            <TextField 
+              label="Nombre" fullWidth 
+              value={formPlato.nombre} onChange={(e) => setFormPlato({ ...formPlato, nombre: e.target.value })} 
+              sx={{ '& .MuiOutlinedInput-root': { bgcolor: '#F9F6F2' } }}
+            />
             <Grid container spacing={2}>
               <Grid size={{ xs: 6 }}>
-                <TextField label="Precio (Bs)" type="number" fullWidth value={nuevoPlato.precio} onChange={(e) => setNuevoPlato({ ...nuevoPlato, precio: e.target.value })} slotProps={{ htmlInput: { min: 0, step: 0.5 } }} />
+                <TextField label="Precio (Bs)" type="number" fullWidth value={formPlato.precio} onChange={(e) => setFormPlato({ ...formPlato, precio: e.target.value })} slotProps={{ htmlInput: { min: 0, step: 0.5 } }} sx={{ '& .MuiOutlinedInput-root': { bgcolor: '#F9F6F2' } }} />
               </Grid>
               <Grid size={{ xs: 6 }}>
-                <TextField label="Stock" type="number" fullWidth value={nuevoPlato.stock} onChange={(e) => setNuevoPlato({ ...nuevoPlato, stock: e.target.value })} slotProps={{ htmlInput: { min: 0 } }} />
+                <TextField label="Stock" type="number" fullWidth value={formPlato.stock} onChange={(e) => setFormPlato({ ...formPlato, stock: e.target.value })} slotProps={{ htmlInput: { min: 0 } }} sx={{ '& .MuiOutlinedInput-root': { bgcolor: '#F9F6F2' } }} />
               </Grid>
             </Grid>
-            <TextField select label="Categoría" fullWidth value={nuevoPlato.categoria_id} onChange={(e) => setNuevoPlato({ ...nuevoPlato, categoria_id: e.target.value })}>
+            <TextField select label="Categoría" fullWidth value={formPlato.categoria_id} onChange={(e) => setFormPlato({ ...formPlato, categoria_id: e.target.value })} sx={{ '& .MuiOutlinedInput-root': { bgcolor: '#F9F6F2' } }}>
               {categorias.map((c) => (
                 <MenuItem key={c.id} value={c.id}>{c.nombre}</MenuItem>
               ))}
             </TextField>
             <FormControlLabel
-              control={<Checkbox checked={nuevoPlato.disponible} onChange={(e) => setNuevoPlato({ ...nuevoPlato, disponible: e.target.checked })} sx={{ color: '#10b981', '&.Mui-checked': { color: '#10b981' } }} />}
-              label="Activar en el menú de hoy"
+              control={<Checkbox checked={formPlato.disponible} onChange={(e) => setFormPlato({ ...formPlato, disponible: e.target.checked })} sx={{ color: '#C66B3D', '&.Mui-checked': { color: '#C66B3D' } }} />}
+              label={<Typography sx={{ fontWeight: 600, color: '#3D3B2A' }}>Activar en el menú de hoy</Typography>}
             />
           </Box>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenNuevo(false)} disabled={guardando} sx={{ textTransform: 'none', fontWeight: 700 }}>
+        <DialogActions sx={{ p: 2, bgcolor: '#F9F6F2' }}>
+          <Button onClick={() => setOpenModal(false)} disabled={guardando} sx={{ textTransform: 'none', fontWeight: 700, color: '#78716C' }}>
             Cancelar
           </Button>
           <Button
-            variant="contained" startIcon={<SaveIcon />} onClick={handleGuardarNuevoPlato} disabled={guardando}
-            sx={{ bgcolor: '#1e293b', fontWeight: 700, textTransform: 'none', '&:hover': { bgcolor: '#0f172a' } }}
+            variant="contained" startIcon={<SaveIcon />} onClick={handleGuardarPlato} disabled={guardando}
+            sx={{ bgcolor: '#C66B3D', fontWeight: 700, textTransform: 'none', color: '#FFFFFF', '&:hover': { bgcolor: '#A5552D' } }}
           >
             {guardando ? 'Guardando...' : 'Guardar'}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* 👇 SNACKBAR: Aquí aparece el aviso de confirmación flotante */}
+      {/* SNACKBAR DE NOTIFICACIÓN */}
       <Snackbar
         open={!!mensaje}
         autoHideDuration={4000}
@@ -373,7 +381,7 @@ export default function GestionPlatos() {
           severity={mensaje?.tipo || 'info'} 
           sx={{ width: '100%', fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', borderRadius: 2 }}
         >
-          {mensaje?.texto}ha
+          {mensaje?.texto}
         </Alert>
       </Snackbar>
       

@@ -51,24 +51,25 @@ export default function CarritoResumen({
 }: CarritoResumenProps) {
   const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
 
-  return (
+    return (
     <Card
       elevation={0}
       sx={{
-        border: '1px solid #cbd5e1',
+        // 👇 Borde sutil del color oscuro de la paleta
+        border: '2px solid #3D3B2A',
         borderRadius: 2.5,
         overflow: 'hidden',
         background: '#ffffff',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+        boxShadow: '0 8px 24px rgba(61, 59, 42, 0.15)', // Sombra con tinte del color oscuro
       }}
     >
       <CardContent sx={{ p: 0 }}>
         
-        {/* 👇 HEADER PROFESIONAL */}
+        {/* 👇 HEADER DEL CARRITO (Verde Oliva Oscuro) */}
         <Box
           sx={{
-            background: 'linear-gradient(135deg, #475569 0%, #334155 100%)',
-            color: 'white',
+            background: '#3D3B2A', 
+            color: '#D8C3A5', // Texto Beige
             p: 2,
             display: 'flex',
             alignItems: 'center',
@@ -79,17 +80,17 @@ export default function CarritoResumen({
             sx={{
               width: 40,
               height: 40,
-              bgcolor: 'rgba(255, 255, 255, 0.2)',
-              backdropFilter: 'blur(10px)',
+              bgcolor: '#C66B3D', // Avatar Terracota
+              color: '#FFFFFF',
             }}
           >
             <ShoppingCartIcon sx={{ fontSize: 22 }} />
           </Avatar>
           <Box sx={{ flex: 1 }}>
-            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.05rem', lineHeight: 1.1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.05rem', lineHeight: 1.1, color: '#D8C3A5' }}>
               Pedido Actual
             </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.9, fontSize: '0.75rem' }}>
+            <Typography variant="caption" sx={{ color: 'rgba(216, 195, 165, 0.8)', fontSize: '0.75rem' }}>
               {totalItems} {totalItems === 1 ? 'producto' : 'productos'}
             </Typography>
           </Box>
@@ -97,9 +98,9 @@ export default function CarritoResumen({
             <IconButton
               onClick={onVaciar}
               sx={{
-                color: 'white',
-                bgcolor: 'rgba(255, 255, 255, 0.15)',
-                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)' },
+                color: '#D8C3A5',
+                bgcolor: 'rgba(216, 195, 165, 0.1)',
+                '&:hover': { bgcolor: 'rgba(216, 195, 165, 0.2)' },
               }}
               size="small"
             >
@@ -110,7 +111,7 @@ export default function CarritoResumen({
 
         {/* 👇 MODALIDAD (Comer aquí / Para llevar) */}
         <Box sx={{ p: 2, pb: 1.5 }}>
-          <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', mb: 0.75, display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.7rem' }}>
+          <Typography variant="caption" sx={{ fontWeight: 800, color: '#3D3B2A', mb: 0.75, display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.7rem' }}>
             Modalidad
           </Typography>
           <ToggleButtonGroup
@@ -125,11 +126,13 @@ export default function CarritoResumen({
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 textTransform: 'none',
-                border: '1px solid #cbd5e1',
+                color: '#3D3B2A',
+                border: '1px solid #D8C3A5',
                 '&.Mui-selected': {
-                  bgcolor: '#475569',
-                  color: 'white',
-                  '&:hover': { bgcolor: '#334155' },
+                  bgcolor: '#C66B3D', // Estado activo en Terracota
+                  color: '#FFFFFF',
+                  borderColor: '#C66B3D',
+                  '&:hover': { bgcolor: '#A5552D' },
                 },
               },
             }}
@@ -148,7 +151,7 @@ export default function CarritoResumen({
         {/* 👇 LISTA DE PRODUCTOS */}
         <Box sx={{ px: 2, pb: 1.5, maxHeight: 280, overflowY: 'auto' }}>
           {carrito.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
+            <Box sx={{ textAlign: 'center', py: 4, color: '#A8A29E' }}>
               <ShoppingCartIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} />
               <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
                 Tu pedido está vacío
@@ -163,17 +166,17 @@ export default function CarritoResumen({
                   alignItems: 'center',
                   gap: 1,
                   py: 1,
-                  borderBottom: '1px solid #f1f5f9',
+                  borderBottom: '1px solid #F5F5F4',
                   '&:last-child': { borderBottom: 'none' },
                 }}
               >
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography
                     sx={{
-                      fontWeight: 600,
+                      fontWeight: 700,
                       fontSize: '0.85rem',
                       lineHeight: 1.2,
-                      color: '#1e293b',
+                      color: '#3D3B2A', // Texto oscuro
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
@@ -181,7 +184,7 @@ export default function CarritoResumen({
                   >
                     {item.nombre}
                   </Typography>
-                  <Typography sx={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
+                  <Typography sx={{ fontSize: '0.75rem', color: '#78716C', fontWeight: 600 }}>
                     Bs {(item.precio * item.cantidad).toFixed(2)}
                   </Typography>
                 </Box>
@@ -194,13 +197,14 @@ export default function CarritoResumen({
                     sx={{
                       width: 28,
                       height: 28,
-                      bgcolor: '#f1f5f9',
-                      '&:hover': { bgcolor: '#e2e8f0' },
+                      bgcolor: '#F9F6F2', // Fondo beige muy claro
+                      color: '#3D3B2A',
+                      '&:hover': { bgcolor: '#D8C3A5' },
                     }}
                   >
                     <RemoveIcon sx={{ fontSize: 16 }} />
                   </IconButton>
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', minWidth: 24, textAlign: 'center' }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', minWidth: 24, textAlign: 'center', color: '#3D3B2A' }}>
                     {item.cantidad}
                   </Typography>
                   <IconButton
@@ -209,8 +213,9 @@ export default function CarritoResumen({
                     sx={{
                       width: 28,
                       height: 28,
-                      bgcolor: '#f1f5f9',
-                      '&:hover': { bgcolor: '#e2e8f0' },
+                      bgcolor: '#F9F6F2',
+                      color: '#3D3B2A',
+                      '&:hover': { bgcolor: '#D8C3A5' },
                     }}
                   >
                     <AddIcon sx={{ fontSize: 16 }} />
@@ -221,11 +226,11 @@ export default function CarritoResumen({
           )}
         </Box>
 
-        <Divider sx={{ borderColor: '#e2e8f0' }} />
+        <Divider sx={{ borderColor: '#F5F5F4' }} />
 
         {/* 👇 FORMA DE PAGO */}
         <Box sx={{ p: 2, pb: 1.5 }}>
-          <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', mb: 0.75, display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.7rem' }}>
+          <Typography variant="caption" sx={{ fontWeight: 800, color: '#3D3B2A', mb: 0.75, display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.7rem' }}>
             Forma de pago
           </Typography>
           <ToggleButtonGroup
@@ -240,11 +245,13 @@ export default function CarritoResumen({
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 textTransform: 'none',
-                border: '1px solid #cbd5e1',
+                color: '#3D3B2A',
+                border: '1px solid #D8C3A5',
                 '&.Mui-selected': {
-                  bgcolor: '#475569',
-                  color: 'white',
-                  '&:hover': { bgcolor: '#334155' },
+                  bgcolor: '#C66B3D', // Estado activo en Terracota
+                  color: '#FFFFFF',
+                  borderColor: '#C66B3D',
+                  '&:hover': { bgcolor: '#A5552D' },
                 },
               },
             }}
@@ -260,52 +267,54 @@ export default function CarritoResumen({
           </ToggleButtonGroup>
         </Box>
 
-        <Divider sx={{ borderColor: '#e2e8f0' }} />
+        <Divider sx={{ borderColor: '#F5F5F4' }} />
 
         {/* 👇 TOTAL Y BOTÓN DE CONFIRMAR */}
         <Box sx={{ p: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-            <Typography sx={{ fontWeight: 700, color: '#475569', fontSize: '0.9rem' }}>
+            <Typography sx={{ fontWeight: 800, color: '#3D3B2A', fontSize: '1rem' }}>
               Total
             </Typography>
-            <Typography sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.5rem', lineHeight: 1 }}>
+            <Typography sx={{ fontWeight: 900, color: '#C66B3D', fontSize: '1.6rem', lineHeight: 1 }}>
               Bs {total.toFixed(2)}
             </Typography>
           </Box>
 
-                     <Button
+          <Button
             variant="contained"
             fullWidth
             onClick={onConfirmar}
             disabled={carrito.length === 0}
             startIcon={<CheckCircleIcon sx={{ fontSize: 18 }} />}
             sx={{
-              py: 0.5,
+              py: 1,
               minHeight: 'auto',
-              fontSize: '0.85rem',
+              fontSize: '0.9rem',
               fontWeight: 700,
               borderRadius: 1.5,
-              bgcolor: '#10b981',
+              // 👇 Botón Confirmar en Terracota
+              bgcolor: '#C66B3D',
+              color: '#FFFFFF',
               textTransform: 'none',
-              boxShadow: '0 2px 6px rgba(16, 185, 129, 0.2)',
+              boxShadow: '0 4px 12px rgba(198, 107, 61, 0.3)',
               '& .MuiButton-startIcon': {
                 mr: 0.5,
               },
               '&:hover': {
-                bgcolor: '#059669',
-                boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)',
+                bgcolor: '#A5552D',
+                boxShadow: '0 6px 16px rgba(198, 107, 61, 0.4)',
               },
               '&:disabled': {
-                bgcolor: '#cbd5e1',
-                color: '#94a3b8',
+                bgcolor: '#E7E5E4',
+                color: '#A8A29E',
               },
             }}
           >
             Confirmar Pedido
           </Button>
 
-                    {/* 👇 NUEVO BOTÓN: Redirige al Resumen de Ventas */}
-          <Divider sx={{ my: 2, borderColor: '#f1f5f9' }} />
+          {/* 👇 BOTÓN: Redirige al Resumen de Ventas */}
+          <Divider sx={{ my: 2, borderColor: '#F5F5F4' }} />
           
           <Link href="/resumen" style={{ textDecoration: 'none', width: '100%' }}>
             <Button
@@ -315,16 +324,17 @@ export default function CarritoResumen({
               sx={{
                 py: 1,
                 fontSize: '0.85rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 textTransform: 'none',
                 borderRadius: 1.5,
-                borderColor: '#cbd5e1',
-                color: '#475569',
+                // 👇 Botón secundario con borde Oliva Oscuro
+                borderColor: '#3D3B2A',
+                color: '#3D3B2A',
                 bgcolor: 'transparent',
                 '&:hover': {
-                  bgcolor: '#f8fafc',
-                  borderColor: '#94a3b8',
-                  color: '#0f172a',
+                  bgcolor: '#F9F6F2',
+                  borderColor: '#3D3B2A',
+                  color: '#3D3B2A',
                 },
                 transition: 'all 0.2s ease',
               }}
